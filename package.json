@@ -10,7 +10,10 @@
   "dependencies": {
     "react": "16.8.6",
     "react-native": "0.60.3",
-    "react-native-qrcode": "^0.2.7"
+    "react-native-camera": "^2.11.1",
+    "react-native-permissions": "^1.1.1",
+    "react-native-qrcode": "^0.2.7",
+    "react-native-qrcode-scanner": "^1.2.1"
   },
   "devDependencies": {
     "@babel/core": "^7.5.4",
