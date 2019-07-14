@@ -53,7 +53,13 @@ const styles = StyleSheet.create({
         backgroundColor: '#DDD',
         borderRadius: 5,
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        shadowOffset: {
+            width: 1,
+            height: 3
+        },
+        shadowRadius: 2,
+        shadowOpacity: 0.3
     },
     text: {
         fontSize: 14
