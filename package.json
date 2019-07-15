@@ -8,6 +8,8 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@react-native-community/geolocation": "^1.4.2",
+    "axios": "^0.19.0",
     "react": "16.8.6",
     "react-native": "0.60.3",
     "react-native-camera": "^2.11.1",

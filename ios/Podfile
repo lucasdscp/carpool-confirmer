@@ -34,6 +34,8 @@ target 'carpool' do
 
   pod 'RNSVG', :path => '../node_modules/react-native-svg'
 
+  pod 'react-native-geolocation', path: '../node_modules/@react-native-community/geolocation'
+
   target 'carpoolTests' do
     inherit! :search_paths
     # Pods for testing
