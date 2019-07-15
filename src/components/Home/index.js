@@ -10,10 +10,8 @@ import {
   TouchableOpacity
 } from 'react-native';
 
-import axios from 'axios';
 import QRCode from 'react-native-qrcode-svg';
 import QRCodeScanner from 'react-native-qrcode-scanner';
-import Geolocation from '@react-native-community/geolocation';
 
 import Header from './Header';
 import Menu from './Menu';
@@ -33,7 +31,7 @@ class Home extends Component {
   };
 
   componentDidMount() {
-    Geolocation.requestAuthorization();
+    navigator.geolocation.requestAuthorization();
   }
 
   onMenuChanged = (index) => {
@@ -41,7 +39,7 @@ class Home extends Component {
   }
 
   shareDriverLocation = () => {
-    Geolocation.getCurrentPosition(async info => {
+    navigator.geolocation.getCurrentPosition(info => {
       if (info && info.coords) {
         const { latitude, longitude } = info.coords;
         const { driverId, datetime } = this.state;
