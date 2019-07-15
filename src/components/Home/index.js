@@ -177,13 +177,9 @@ class Home extends Component {
   renderPassengerLocation = () => {
     const { isPassengerSharedLocation, isPassengerSharedLocationMsg, isLoading, rideInfo } = this.state;
     return (
-      <View style={{ alignItems: 'center', marginTop: 20 }}>
+      <View style={styles.passengerContent}>
         <MapView
-          style={{
-            height: width / 2,
-            width: width,
-            marginBottom: 16
-          }}
+          style={styles.map}
           initialRegion={{
             latitude: rideInfo.latitude,
             longitude: rideInfo.longitude,
@@ -297,6 +293,15 @@ const styles = StyleSheet.create({
   driverMsg: {
     fontSize: 14,
     marginTop: 10
+  },
+  map: {
+    height: width / 2,
+    width: width,
+    marginBottom: 16
+  },
+  passengerContent: { 
+    alignItems: 'center', 
+    marginTop: 20 
   }
 });
 
