@@ -77,7 +77,7 @@ class Home extends Component {
           this.setState({
             isDriverSharedLocation: true,
             isLoading: false,
-            isDriverSharedLocationMsg: 'Localização compartilhada com sucesso'
+            isDriverSharedLocationMsg: 'Localização validada com sucesso'
           });
         })
         .catch(err => {
