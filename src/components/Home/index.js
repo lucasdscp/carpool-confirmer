@@ -11,6 +11,9 @@ import {
   Platform
 } from 'react-native';
 
+import MapView from 'react-native-maps';
+import { Marker } from 'react-native-maps';
+
 import QRCode from 'react-native-qrcode-svg';
 import QRCodeScanner from 'react-native-qrcode-scanner';
 
@@ -27,6 +30,8 @@ class Home extends Component {
     driverId: 1, // Adding hardcoded user ID to simulate logged user :)
     isDriverSharedLocation: false,
     isDriverSharedLocationMsg: '',
+    isPassengerSharedLocation: false,
+    isPassengerSharedLocationMsg: '',
     datetime: Date.now(),
     isLoading: false
   };
@@ -71,12 +76,14 @@ class Home extends Component {
         api(options).then(data => {
           this.setState({
             isDriverSharedLocation: true,
+            isLoading: false,
             isDriverSharedLocationMsg: 'Localização compartilhada com sucesso'
           });
         })
         .catch(err => {
           this.setState({
             isDriverSharedLocation: true,
+            isLoading: false,
             isDriverSharedLocationMsg: 'Ocorreu um problema ao compartilhar a localização'
           });
         });
@@ -114,42 +121,128 @@ class Home extends Component {
     );
   }
 
-  renderBottomContent = () => {
+  validatePassenger = () => {
+    const { rideInfo } = this.state;
+    const { latitude, longitude, driverId, datetime } = rideInfo;
+    
+    const options = {
+      method: 'POST',
+      headers: { 
+        "Accept": "*/*",
+        "content-type": "application/json; charset=UTF-8"
+      },
+      data: JSON.stringify({
+        lat: latitude,
+        lon: longitude,
+        driverId,
+        datetime,
+        type: 'passenger'
+      }),
+      url: '/share-ride-location',
+      isValidStatus: () => {
+        return true;
+      }
+    };
+
+    this.setState({
+      isLoading: true,
+      isPassengerSharedLocationMsg: 'Carregando...'
+    });
+
+    api(options).then(res => {
+      if (res && res.data) {
+        const { distance, isConfirmed } = res.data;
+        
+        let message = `Carona não confirmada\nDistância do motorista: ${distance}m`
+        if (isConfirmed) {
+          message = `Carona confirmada\nDistância do motorista: ${distance}m`
+        }
+
+        this.setState({
+          isPassengerSharedLocation: true,
+          isLoading: false,
+          isPassengerSharedLocationMsg: message
+        });
+      }
+    })
+    .catch(err => {
+      this.setState({
+        isDriverSharedLocation: true,
+        isLoading: false,
+        isPassengerSharedLocationMsg: 'Ocorreu um problema ao compartilhar a localização'
+      });
+    });
+  }
+
+  renderPassengerLocation = () => {
+    const { isPassengerSharedLocation, isPassengerSharedLocationMsg, isLoading, rideInfo } = this.state;
     return (
-      <TouchableOpacity style={styles.button}>
-        <Text>
-          Compartilhar localização
-        </Text>
-      </TouchableOpacity>
+      <View style={{ alignItems: 'center', marginTop: 20 }}>
+        <MapView
+          style={{
+            height: width / 2,
+            width: width,
+            marginBottom: 16
+          }}
+          initialRegion={{
+            latitude: rideInfo.latitude,
+            longitude: rideInfo.longitude,
+            latitudeDelta: 0.015,
+            longitudeDelta: 0.0121,
+          }}
+        >
+          <Marker
+            coordinate={{ latitude: rideInfo.latitude, longitude: rideInfo.longitude }}
+          />
+        </MapView>
+        <TouchableOpacity onPress={this.validatePassenger} style={[styles.button, { width: 190, alignItems: 'center' }]}>
+          <Text>
+            Compartilhar localização
+          </Text>
+        </TouchableOpacity>
+        {(isPassengerSharedLocation || isLoading) && <Text style={[styles.driverMsg, { textAlign: 'center' }]}>
+            {isPassengerSharedLocationMsg}
+        </Text>}
+      </View>
     );
   }
 
   readQrCode = (response) => {
     const rideInfo = JSON.parse(response.data);
-    console.log(rideInfo, navigator.geolocation);
+    
+    navigator.geolocation.getCurrentPosition(info => {
+      if (info && info.coords) {
+        const { latitude, longitude } = info.coords;
+        rideInfo.latitude = latitude;
+        rideInfo.longitude = longitude;
+        
+        this.setState({ rideInfo });
+      }
+    });
   }
 
   renderPassengerSlide = () => {
+    const { rideInfo } = this.state;
+
     return (
       <View style={styles.sliderContent}>
-        <View style={{ flex: 1, top: -(width / 4) }}>
-          <QRCodeScanner
+        <View style={{ flex: 1, top: (rideInfo ? 0 : -(width / 4)) }}>
+          {rideInfo ? this.renderPassengerLocation() : <QRCodeScanner
             onRead={this.readQrCode}
-            bottomContent={this.renderBottomContent()}
-          />
+          />}
         </View>
       </View>
     );
   }
 
   render() {
-    const { menuOptions } = this.state;
+    const { menuOptions, isLoading } = this.state;
 
     return (
       <Fragment>
         <StatusBar barStyle="dark-content" />
         <SafeAreaView style={styles.body}>
-          <Header text="Validar Carona" />
+          <Header text={isLoading ? "Validando geolocalização" : "Validar carona"} />
           <Menu options={menuOptions} style={styles.menu} onChanged={this.onMenuChanged} />
           <ScrollView 
             ref={s => this.homeSlide = s} 

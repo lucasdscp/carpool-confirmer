@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
   },
   headerText: {
     color: '#000',
-    fontSize: 22
+    fontSize: 14
   }
 });
 
