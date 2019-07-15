@@ -7,7 +7,8 @@ import {
   Text,
   StatusBar,
   Dimensions,
-  TouchableOpacity
+  TouchableOpacity,
+  Platform
 } from 'react-native';
 
 import QRCode from 'react-native-qrcode-svg';
@@ -31,7 +32,9 @@ class Home extends Component {
   };
 
   componentDidMount() {
-    navigator.geolocation.requestAuthorization();
+    if (Platform.OS === 'ios') {
+      navigator.geolocation.requestAuthorization();
+    }
   }
 
   onMenuChanged = (index) => {
